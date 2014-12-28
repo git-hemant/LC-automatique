@@ -14,5 +14,8 @@ How to run
 <br>
 2) Run the program java -jar -Dconfig.file=&lt;Path to Config file&gt; lc-automatique.jar 
 
+Having issues?
+==============
+Please open the new issue in the project and i'll try to response you as soon as I can.
 
 
