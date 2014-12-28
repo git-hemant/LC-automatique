@@ -1,10 +1,11 @@
 {
     "logFile": "c:/temp/lc.log",
     "trackFile": "c:/temp/track.txt",
+    "_comment": "trackFile keeps track of all the loans ordered so that we don't re-order those loans again",
     "InvestorId": "<Your Investor Id>",
     "ApiKey": "<Your API Key>",
     "logLevel": "INFO",
-    "showPopularLoans": 5,
+    "_comment": "Log level can be DEBUG, INFO or ERROR where DEBUG produces most information in the log file.",
     "testMode": true,
     "_comment": "Please set testMode to true, if you just want to see which loans would have been ordered by your strategies",
     "onlyRecentlyListed": true,
@@ -16,8 +17,10 @@
     "strategies": {
         "1": {
             "name": "Testing B beta",
+            "_comment": "Give any name to strategy here based on what this strategy do.",
             "active": true,
             "amountPerNote": 25,
+            "_comment": "You can decide how much to invest in each loan, so this amount can be 25, 50 or any multiple of 25.",
             "maxOrdersPerDay": 5,
             "_comment": "maxOrdersPerDay is maximum number of loans which we would order for given strategy in a given day.",
             "targetPortfolio": "My B Loans",
