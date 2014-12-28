@@ -1,0 +1,58 @@
+{
+    "logFile": "c:/temp/lc.log",
+    "trackFile": "c:/temp/track.txt",
+    "InvestorId": "<Your Investor Id>",
+    "ApiKey": "<Your API Key>",
+    "logLevel": "INFO",
+    "showPopularLoans": 5,
+    "testMode": true,
+    "_comment": "Please set testMode to true, if you just want to see which loans would have been ordered by your strategies",
+    "onlyRecentlyListed": true,
+    "_comment": "Please set onlyRecentlyListed to true, if you just want only recently listed loans and not all available loans",
+    "retryCount": 3,
+    "_comment": "retryCount is number of times we should retry the same strategy whenever it is executed",
+    "retryGap": 20,
+    "_comment": "retryGap is number of seconds to wait between retries",
+    "strategies": {
+        "1": {
+            "name": "Testing B beta",
+            "active": true,
+            "amountPerNote": 25,
+            "maxOrdersPerDay": 5,
+            "_comment": "maxOrdersPerDay is maximum number of loans which we would order for given strategy in a given day.",
+            "targetPortfolio": "My B Loans",
+            "_comment": "targetPortfolio is name of portfolio in your lending club account where this ordered loan should be added.",
+            "followPopular": {
+            	"_comment": "Loan should be already 20 percent funded.",
+                "minPercentageFunded": 20
+            },
+            "loansFilter": {
+                "grade": {
+                    "include": {
+                        "1": "B"
+                    }
+                },
+                "subGrade": {
+                	"_comment": "This strategy include B grade loans but exclude B1 and B2 sub grades",
+                    "exclude": {
+                        "1": "B1",
+                        "2": "B2"
+                    }
+                },
+                "annualInc": {
+                    "greaterThan": 18000
+                },
+                "revolUtil": {
+                    "lessThan": 100
+                }
+            }
+        },
+        "schedule": {
+        	"Comment": "Following schedule means program will run every day on 6AM, 10AM 2PM and 6PM, please change time based on your time zone.",
+            "1": "0 0 6 ? * SUN-SAT",
+            "2": "0 0 10 ? * SUN-SAT",
+            "3": "0 0 14 ? * SUN-SAT",
+            "4": "0 0 18 ? * SUN-SAT"
+        }
+    }
+}
