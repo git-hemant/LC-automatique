@@ -41,7 +41,7 @@ public class LoanFilter {
 			List<Map> strategySelectedLoans = filterByStrategy.filter(loans, log);
 			// Show statistics on why loans were not included or included
 			if (log.isDebug()) {
-				log.debug("Strategy: " + strategy.getName() + " loans: " + loans.size() + " filter stastics: " + filterByStrategy.getStatistics());
+				log.debug("Strategy: " + strategy.getName() + " total loans: " + loans.size() + " selected loans: " + strategySelectedLoans.size()  + " filter stastics: " + filterByStrategy.getStatistics());
 			}
 			
 			// Apply the derived data filter, if we have any loans selected by previous filter.

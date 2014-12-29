@@ -156,8 +156,12 @@ public class AutomaticInvestor {
 		ListedLoansRequest loansRequest = new ListedLoansRequest(config.investorId(), config.apiKey());
 		List<Map> allLoans = loansRequest.newLoans(!config.onlyRecentlyListed());
 		int beforeFilter = allLoans.size();
-		log.debug("Retry count: " + currentRetryCount + ". Result of loan request found: " + beforeFilter + " loans, request executed in "
-				+ ((System.currentTimeMillis() - time) / 1000) + " seconds.");
+		String msg = "Result of loans request found: " + beforeFilter + " loans, request executed in "
+				+ ((System.currentTimeMillis() - time) / 1000) + " seconds.";
+		if (config.retryCount() > 1) {
+			msg = "Retry count: " + currentRetryCount + ". " + msg;
+		}
+		log.info(msg);
 		// Skip rest of the steps if we can't find any loans.
 		if (beforeFilter == 0) {
 			return;
@@ -192,6 +196,7 @@ public class AutomaticInvestor {
 				getStrategyExecutor(strategyConfig);
 			}
 		}
+		showStrategyQualifiedLoansInfo(strategiesConfig, qualfiedLoansByStrategy);
 		
 		if (qualfiedLoansByStrategy.size() == 0) return;
 		for (StrategyConfig strategyConfig : strategiesConfig) {
@@ -211,6 +216,20 @@ public class AutomaticInvestor {
 				if (!se.isActive()) {
 					strategiesMadeAllOrders.put(se.strategyName(), Boolean.TRUE);
 				}
+			}
+		}
+	}
+
+	private void showStrategyQualifiedLoansInfo(List<StrategyConfig> strategiesConfig, Map<String, List<Map>> qualfiedLoansByStrategy) {
+		if (qualfiedLoansByStrategy.size() == 0) {
+			log.info("No qualifying loans found for any of the strategies, total active strategies: " + strategiesConfig.size());
+		} else {
+			log.info("Found qualifying loans for " + qualfiedLoansByStrategy.size() + " strategies out of " + strategiesConfig.size() + " active strategies.");
+			Iterator iterator = qualfiedLoansByStrategy.keySet().iterator();
+			while (iterator.hasNext()) {
+				String strategy = (String) iterator.next();
+				List<Map> strategyLoans = qualfiedLoansByStrategy.get(strategy);
+				log.info("Strategy name: " + strategy + " selected " + strategyLoans.size() + " loans.");
 			}
 		}
 	}

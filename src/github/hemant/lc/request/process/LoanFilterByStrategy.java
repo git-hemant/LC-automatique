@@ -34,7 +34,7 @@ class LoanFilterByStrategy {
 			} else {
 				// For common cases like grade and subgrade we don't want to show messages.
 				if (exclusionReason.length() > 0) {
-					log.debug("Id: " + LoanUtil.loanId(loan) + " reason for filter: " + exclusionReason);
+					//log.debug("Id: " + LoanUtil.loanId(loan) + " reason for filter: " + exclusionReason);
 				}
 			}
 		}
