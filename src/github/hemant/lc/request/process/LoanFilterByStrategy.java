@@ -26,7 +26,6 @@ class LoanFilterByStrategy {
 
 	public List<Map> filter(List<Map> allLoans, Log log) throws WebRequestException {
 		List<Map> filteredLoans = new ArrayList<Map>();
-		System.out.println("Filtering strategy: " + config.getName());
 		for (Map loan : allLoans) {
 			StringBuffer exclusionReason = new StringBuffer();
 			if (isLoanIncludedByData(loan, exclusionReason) 
