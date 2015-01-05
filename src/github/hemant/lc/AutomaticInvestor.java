@@ -154,7 +154,11 @@ public class AutomaticInvestor {
 		long time = System.currentTimeMillis();
 		
 		ListedLoansRequest loansRequest = new ListedLoansRequest(config.investorId(), config.apiKey());
-		List<Map> allLoans = loansRequest.newLoans(!config.onlyRecentlyListed());
+		List<Map> allLoans = loansRequest.newLoans(log, !config.onlyRecentlyListed());
+		// It seems in certain cases listing response is not returning any loan in the response.
+		if (allLoans == null) {
+			return;
+		}
 		int beforeFilter = allLoans.size();
 		String msg = "Result of loans request found: " + beforeFilter + " loans, request executed in "
 				+ ((System.currentTimeMillis() - time) / 1000) + " seconds.";

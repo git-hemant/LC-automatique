@@ -48,12 +48,15 @@ public class ListedLoansRequest extends AbstractRequest {
 		}
 	}
 	
-	public List<Map> newLoans(boolean includeAll) throws WebRequestException {
+	public List<Map> newLoans(Log log, boolean includeAll) throws WebRequestException {
 		JsonParserFactory factory = JsonParserFactory.getInstance();
 		JSONParser parser = factory.newJsonParser();
 		Map map;
 		try {
 			map = parser.parseJson(prepareRequest("listing" + (includeAll ? "?showAll=true" : ""), Type.LOANS).execute().returnContent().asStream(), "UTF-8");
+			if (!map.containsKey("loans")) {
+				log.error("Response doesn't have any 'loans' attribute, response string: " + map);
+			}
 			return (List<Map>) map.get("loans");
 		} catch (Exception e) {
 			throw new WebRequestException(e);
