@@ -15,9 +15,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 class LoanFilterByStrategy {
 	private StrategyConfig config;
 	private Map<String, Integer> filterStatistics;
+	private static ScriptEngine engine;
 
 	public LoanFilterByStrategy(StrategyConfig strategyConfig) {
 		config = strategyConfig;
@@ -51,9 +56,10 @@ class LoanFilterByStrategy {
 			try {
 				filterField = (String) iterator.next();
 				value = (String) loan.get(filterField);
+				// fieldMap is the set of filters we need to perform on.
 				@SuppressWarnings("unchecked")
 				Map<String, Object> fieldMap = (Map<String, Object>) dataFilterMap.get(filterField);
-				if (!isLoanIncludedByField(filterField, value, fieldMap, exclusionReason)) {
+				if (!isLoanIncludedByField(loan, filterField, value, fieldMap, exclusionReason)) {
 					return false;
 				}
 			} catch (Exception e) {
@@ -64,7 +70,7 @@ class LoanFilterByStrategy {
 		return true;
 	}
 	
-	private boolean isLoanIncludedByField(String fieldName, String value, Map<String, Object> fieldMap, StringBuffer exclusionReason) 
+	private boolean isLoanIncludedByField(Map loan, String fieldName, String value, Map<String, Object> fieldMap, StringBuffer exclusionReason) 
 			throws WebRequestException {
 		// Look for any inclusions
 		@SuppressWarnings("unchecked")
@@ -100,19 +106,29 @@ class LoanFilterByStrategy {
 		// Look for greater than operator on the value.
 		Object greaterThan = fieldMap.get("greaterThan");
 		if (greaterThan != null) {
-			// Check if the field value is greater than value specified in the filter.
-			if (isNull(value) || !(Double.parseDouble(value.toString()) > Double.parseDouble(greaterThan.toString()))) {
-				exclusionReason.append("greaterThan - " + fieldName + " value: " + value + "  is not greater than :" + greaterThan);
+			if (isNull(value)) {
+				exclusionReason.append("greaterThan - " + fieldName + " value: " + value + "  is null instead of number");				
 				registerExclusion("greaterThan", fieldName);
 				return false;
+			}
+			greaterThan = evaluateExpressionValue(loan, (String) greaterThan);
+			// Check if the field value is greater than value specified in the filter.
+			if (!(Double.parseDouble(value.toString()) > Double.parseDouble(greaterThan.toString()))) {
+				exclusionReason.append("greaterThan - " + fieldName + " value: " + value + "  is not greater than :" + greaterThan);
 			}
 		}
 		
 		// Look for less than operator on the value.
 		Object lessThan = fieldMap.get("lessThan");
 		if (lessThan != null) {
+			if (isNull(value)) {
+				exclusionReason.append("lessThan - " + fieldName + " value: " + value + "  is null instead of number");
+				registerExclusion("lessThan", fieldName);
+				return false;
+			}
+			lessThan = evaluateExpressionValue(loan, (String) lessThan);
 			// Check if the field value is less than value specified in the filter.
-			if (isNull(value) || !(Double.parseDouble(value.toString()) < Double.parseDouble(lessThan.toString()))) {
+			if (!(Double.parseDouble(value.toString()) < Double.parseDouble(lessThan.toString()))) {
 				exclusionReason.append("lessThan - " + fieldName + " value: " + value + "  is not less than :" + lessThan);
 				registerExclusion("lessThan", fieldName);
 				return false;
@@ -130,6 +146,43 @@ class LoanFilterByStrategy {
 		}
 		
 		return true;
+	}
+
+	// TODO - This evaluates RHS of greaterThan or lessThan
+	// but may we can have entire expression input by the user
+	// instead of just RHS.
+	private String evaluateExpressionValue(Map loan, String value) throws WebRequestException {
+		value = value.trim();
+		// If the RHS value specified by the user is numeric literal
+		// then return the value.
+		if (Utils.isNumeric(value)) return value;
+		
+		// At this point either the user has written complex expression
+		// in the RHS, or there is typo in the RHS. We will assume it is
+		// a expression which might event have loan fields, so let's try
+		// to replace loan fields in the value.
+		for (Iterator iterator = loan.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			String keyValue = (String) loan.get(key);
+			if (value.contains(key)) {
+				// Replace all key with values
+				value = value.replaceAll(key, keyValue);
+			}
+		}
+		
+		// Now use expression evaluator to convert this expression
+		// into numeric value.
+		if (engine == null) {
+			ScriptEngineManager mgr = new ScriptEngineManager();
+		    engine = mgr.getEngineByName("JavaScript");
+		}
+		try {
+			value = engine.eval(value).toString();
+		} catch (ScriptException e) {
+			throw new WebRequestException("Error evaluating expression " + value, e);
+		}
+		// At this point value should be a number
+		return value;
 	}
 
 	/**

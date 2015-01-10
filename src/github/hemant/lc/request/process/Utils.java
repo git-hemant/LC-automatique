@@ -15,6 +15,15 @@ public class Utils {
 	private Utils() {
 	}
 
+	public static boolean isNumeric(String str) {
+		try {
+			Double.parseDouble(str);
+			return true;
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+	}
+	
 	public static String brief(Map<String, String> loan) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Id=").append(LoanUtil.loanId(loan));
