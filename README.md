@@ -6,7 +6,7 @@ This program uses Lending Club REST API to automate investment decisions, here y
 
 How to configure 
 ==============
-Please specify your numeric investor id and API key in the configuration file. In configuration file you can specify multiple strategies where each strategy have it's own filters and portfolio name in your lending club account. Please see the [sample configuraiton file](https://raw.githubusercontent.com/git-hemant/LC-automatique/master/examples/simple/simple.txt) which have one very simple strategy.
+Please specify your numeric investor id and API key in the configuration file. In configuration file you can specify multiple strategies where each strategy have it's own filters and portfolio name in your lending club account. Please see the [sample configuraiton file](https://raw.githubusercontent.com/git-hemant/LC-automatique/master/docs/configuration/SampleConfiguration.txt) which have one very simple strategy. You can use any of the fields (case sensitive) used in the [loan response](https://raw.githubusercontent.com/git-hemant/LC-automatique/master/docs/response/ListedLoansResponse.json) in filters specified in the configuration file.
 
 
 How to run 
