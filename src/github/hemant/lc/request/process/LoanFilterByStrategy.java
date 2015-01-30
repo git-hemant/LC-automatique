@@ -115,6 +115,7 @@ class LoanFilterByStrategy {
 			// Check if the field value is greater than value specified in the filter.
 			if (!(Double.parseDouble(value.toString()) > Double.parseDouble(greaterThan.toString()))) {
 				exclusionReason.append("greaterThan - " + fieldName + " value: " + value + "  is not greater than :" + greaterThan);
+				return false;
 			}
 		}
 		
